@@ -62,9 +62,6 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     fpr_interpolated = insert_2_sorted(fpr, fpr_range_start, insertion_point1, fpr_range_end, insertion_point2)
     tpr_interpolated = insert_2_sorted(tpr, tpr_range_start, insertion_point1, tpr_range_end, insertion_point2)
 
-    print "fpr", fpr_interpolated
-    print "tpr", tpr_interpolated
-
     return numpy.trapz(tpr_interpolated[insertion_point1:insertion_point2+1],
                        fpr_interpolated[insertion_point1:insertion_point2+1])
 
