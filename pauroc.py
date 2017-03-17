@@ -1,4 +1,6 @@
 import numpy
+from scipy.interpolate import interp1d
+from scipy.integrate import quad
 
 class PAUROCException(Exception): pass
 class FPRArrayNotFloat(PAUROCException): pass
@@ -32,39 +34,9 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     if fpr_range_end > 1: raise FPRRangeEndPointGreaterThanOne
     if fpr_range_start > fpr_range_end: raise FPRRangeInvalid
 
-    def interpolate(given_x_array, given_y_array, given_x_value):
-        insertion_point = numpy.searchsorted(given_x_array, given_x_value)
-
-        if insertion_point == 0:
-            x_before, x_after = 0.0, given_x_array[insertion_point]
-            y_before, y_after = 0.0, given_y_array[insertion_point]
-        elif insertion_point == len(given_x_array) - 1:
-            x_before, x_after = given_x_array[insertion_point-1], given_x_array[insertion_point]
-            y_before, y_after = given_y_array[insertion_point-1], given_x_array[insertion_point]
-        elif insertion_point == len(given_x_array):
-            x_before, x_after = given_x_array[insertion_point-1], 1.0
-            y_before, y_after = given_y_array[insertion_point-1], 1.0
-        else:
-           x_before, x_after = given_x_array[insertion_point - 1], given_x_array[insertion_point + 1]
-           y_before, y_after = given_y_array[insertion_point - 1], given_y_array[insertion_point + 1]
-
-        m = (y_before - y_after)/(x_before - x_after)
-        result = y_before + m * given_x_value
-        return result, insertion_point
-
-    def insert_2_sorted(given_array, element1, insertion_point1, element2, insertion_point2):
-        temp = numpy.insert(given_array, insertion_point1, element1)
-        return numpy.insert(temp, insertion_point2, element2)
-
-    tpr_range_start, insertion_point1 = interpolate(fpr,tpr,fpr_range_start)
-    tpr_range_end, insertion_point2 = interpolate(fpr,tpr,fpr_range_end)
-
-    fpr_interpolated = insert_2_sorted(fpr, fpr_range_start, insertion_point1, fpr_range_end, insertion_point2)
-    tpr_interpolated = insert_2_sorted(tpr, tpr_range_start, insertion_point1, tpr_range_end, insertion_point2)
-
-    return numpy.trapz(tpr_interpolated[insertion_point1:insertion_point2+1],
-                       fpr_interpolated[insertion_point1:insertion_point2+1])
-
-
-
+    fpr_padded = numpy.concatenate([[0.0], fpr, [1.0]])
+    tpr_padded = numpy.concatenate([[0.0], tpr, [1.0]])
+    f = interp1d(fpr_padded, tpr_padded)
+    result, error = quad(f, fpr_range_start, fpr_range_end)
+    return result
 

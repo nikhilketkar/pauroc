@@ -127,6 +127,14 @@ class PAUROCTest(unittest.TestCase):
         result = pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
         self.assertAlmostEqual(result, 0.32, 10)
 
+    def test_left_triangle_interpolation(self):
+        fpr = numpy.array([0.2,0.4,0.6,0.8])
+        tpr = numpy.array([0.8,0.8,0.8,0.8])
+        fpr_start = 0.1
+        fpr_end = 0.4
+        result = pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+        self.assertAlmostEqual(result, 0.22, 10)
+
 if __name__ == '__main__':
     unittest.main()
 
