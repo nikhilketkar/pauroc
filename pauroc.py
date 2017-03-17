@@ -24,8 +24,8 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     if len(fpr) < 1: raise FPRArrayEmpty
     if len(tpr) < 1: raise TPRArrayEmpty
     if len(tpr) != len(fpr): raise TPRFPRArraySizeUnequal
-    if numpy.all(numpy.diff(fpr) <= 0): raise FPRArrayNonMonotonic
-    if numpy.all(numpy.diff(tpr) <= 0): raise TPRArrayNonMonotonic
+    if numpy.all(numpy.diff(fpr) < 0.0): raise FPRArrayNonMonotonic
+    if numpy.all(numpy.diff(tpr) < 0.0): raise TPRArrayNonMonotonic
     if fpr_range_start < 0: raise FPRRangeStartPointNegative
     if fpr_range_start > 1: raise FPRRangeStartPointGreaterThanOne
     if fpr_range_end < 0: raise FPRRangeEndPointNegative
@@ -34,30 +34,42 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
 
     def interpolate(given_x_array, given_y_array, given_x_value):
         insertion_point = numpy.searchsorted(given_x_array, given_x_value)
-        if insertion_point != len(given_x_array) and insertion_point != 0:
-            x_before, x_after = given_x_array[insertion_point - 1], given_x_array[insertion_point + 1]
-            y_before, y_after = given_y_array[insertion_point - 1], given_y_array[insertion_point + 1]
+        print "given_x_array", given_x_array
+        print "given_x_value", given_x_value
+        print "insertion", insertion_point
+
+        if insertion_point == 0:
+            x_before, x_after = 0.0, given_x_array[insertion_point]
+            y_before, y_after = 0.0, given_y_array[insertion_point]
+        elif insertion_point == len(given_x_array) - 1:
+            x_before, x_after = given_x_array[insertion_point-1], given_x_array[insertion_point]
+            y_before, y_after = given_y_array[insertion_point-1], given_x_array[insertion_point]
         elif insertion_point == len(given_x_array):
-            x_before, x_after = given_x_array[insertion_point - 1], 1.0
-            y_before, y_after = given_y_array[insertion_point - 1], 1.0
-        elif insertion_point == 0:
-            x_before, x_after = 0.0, given_x_array[insertion_point + 1]
-            y_before, y_after = 0.0, given_y_array[insertion_point + 1]
-        m = (y_before - y_before)/(x_after - x_before)
-        return y_before + m * given_x_value
+            x_before, x_after = given_x_array[insertion_point-1], 1.0
+            y_before, y_after = given_y_array[insertion_point-1], 1.0
+        else:
+           x_before, x_after = given_x_array[insertion_point - 1], given_x_array[insertion_point + 1]
+           y_before, y_after = given_y_array[insertion_point - 1], given_y_array[insertion_point + 1]
 
-    def insert_2_sorted(given_array, element1, element2):
-        temp = numpy.insert(given_array, numpy.searchsorted(given_array,element1), element1)
-        result = numpy.insert(temp, numpy.searchsorted(temp,element2), element2)
+        m = (y_before - y_after)/(x_before - x_after)
+        result = y_before + m * given_x_value
+        return result, insertion_point
 
-    tpr_range_start = interpolate(fpr,tpr,fpr_range_start)
-    tpr_range_end = interpolate(fpr,tpr,fpr_range_start)
+    def insert_2_sorted(given_array, element1, insertion_point1, element2, insertion_point2):
+        temp = numpy.insert(given_array, insertion_point1, element1)
+        return numpy.insert(temp, insertion_point2, element2)
 
-    fpr_interpolated = insert_2_sorted(tpr, fpr_range_start, fpr_range_end)
-    tpr_interpolated = insert_2_sorted(tpr, tpr_range_start, tpr_range_end)
+    tpr_range_start, insertion_point1 = interpolate(fpr,tpr,fpr_range_start)
+    tpr_range_end, insertion_point2 = interpolate(fpr,tpr,fpr_range_end)
 
-    indices = (fpr_interpolated > fpr_range_start) & (fpr_interpolated < fpr_range_end)
-    return numpy.trapz(tpr_interpolated[indices], fpr_interpolated[indices])
+    fpr_interpolated = insert_2_sorted(fpr, fpr_range_start, insertion_point1, fpr_range_end, insertion_point2)
+    tpr_interpolated = insert_2_sorted(tpr, tpr_range_start, insertion_point1, tpr_range_end, insertion_point2)
+
+    print "fpr", fpr_interpolated
+    print "tpr", tpr_interpolated
+
+    return numpy.trapz(tpr_interpolated[insertion_point1:insertion_point2+1],
+                       fpr_interpolated[insertion_point1:insertion_point2+1])
 
 
 
