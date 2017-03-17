@@ -34,9 +34,6 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
 
     def interpolate(given_x_array, given_y_array, given_x_value):
         insertion_point = numpy.searchsorted(given_x_array, given_x_value)
-        print "given_x_array", given_x_array
-        print "given_x_value", given_x_value
-        print "insertion", insertion_point
 
         if insertion_point == 0:
             x_before, x_after = 0.0, given_x_array[insertion_point]
