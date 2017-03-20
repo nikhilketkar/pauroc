@@ -37,6 +37,6 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     fpr_padded = numpy.concatenate([[0.0], fpr, [1.0]])
     tpr_padded = numpy.concatenate([[0.0], tpr, [1.0]])
     f = interp1d(fpr_padded, tpr_padded)
-    result, error = quad(f, fpr_range_start, fpr_range_end)
+    result, error = quad(f, fpr_range_start, fpr_range_end, limit=1000+2)
     return result
 

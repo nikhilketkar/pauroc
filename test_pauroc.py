@@ -154,6 +154,12 @@ class PAUROCTest(unittest.TestCase):
         auc_result = roc_auc_score(y_true, y_score)
         self.assertAlmostEqual(pauroc_result, auc_result, 3)
 
+    def test_nan_in_tpr(self):
+        pass
+
+    def test_nan_in_fpr(self):
+        pass
+
 if __name__ == '__main__':
     unittest.main()
 
