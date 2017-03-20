@@ -10,8 +10,8 @@ class FPRRangeEndNotFloat(PAUROCException): pass
 class FPRArrayNonMonotonic(PAUROCException): pass
 class TPRArrayNonMonotonic(PAUROCException): pass
 class TPRFPRArraySizeUnequal(PAUROCException): pass
-class FPRArrayEmpty(PAUROCException): pass
-class TPRArrayEmpty(PAUROCException): pass
+class FPRArrayLessThanTwo(PAUROCException): pass
+class TPRArrayLessThanTwo(PAUROCException): pass
 class FPRRangeStartPointNegative(PAUROCException): pass
 class FPRRangeStartPointGreaterThanOne(PAUROCException):pass
 class FPRRangeEndPointNegative(PAUROCException):pass
@@ -23,8 +23,8 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     if not numpy.issubdtype(tpr.dtype,numpy.float): raise TPRArrayNotFloat
     if not isinstance(fpr_range_start, float): raise FPRRangeStartNotFloat
     if not isinstance(fpr_range_end, float): raise FPRRangeEndNotFloat
-    if len(fpr) < 1: raise FPRArrayEmpty
-    if len(tpr) < 1: raise TPRArrayEmpty
+    if len(fpr) < 2: raise FPRArrayLessThanTwo
+    if len(tpr) < 2: raise TPRArrayLessThanTwo
     if len(tpr) != len(fpr): raise TPRFPRArraySizeUnequal
     if numpy.all(numpy.diff(fpr) < 0.0): raise FPRArrayNonMonotonic
     if numpy.all(numpy.diff(tpr) < 0.0): raise TPRArrayNonMonotonic

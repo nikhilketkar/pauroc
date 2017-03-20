@@ -3,6 +3,7 @@ import pauroc
 
 import sys
 import numpy
+from sklearn.metrics import roc_auc_score, roc_curve
 
 class PAUROCTest(unittest.TestCase):
     def gen_valid_input(self):
@@ -39,13 +40,13 @@ class PAUROCTest(unittest.TestCase):
     def test_nonempty_fpr(self):
         fpr, tpr, fpr_start, fpr_end = self.gen_valid_input()
         fpr = numpy.array([])
-        with self.assertRaises(pauroc.FPRArrayEmpty):
+        with self.assertRaises(pauroc.FPRArrayLessThanTwo):
             pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
 
     def test_nonempty_tpr(self):
         fpr, tpr, fpr_start, fpr_end = self.gen_valid_input()
         tpr = numpy.array([])
-        with self.assertRaises(pauroc.TPRArrayEmpty):
+        with self.assertRaises(pauroc.TPRArrayLessThanTwo):
             pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
 
     def test_tpr_fpr_equality(self):
@@ -134,6 +135,24 @@ class PAUROCTest(unittest.TestCase):
         fpr_end = 0.4
         result = pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
         self.assertAlmostEqual(result, 0.22, 10)
+
+    def test_two_points(self):
+        fpr = numpy.array([0.2,0.4])
+        tpr = numpy.array([0.8,0.8])
+        fpr_start = 0.1
+        fpr_end = 0.4
+        result = pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+        self.assertAlmostEqual(result, 0.22, 10)
+
+    def test_scikit_learn_auc(self):
+        y_true = numpy.round(numpy.random.rand(1000,1))
+        y_score = numpy.random.rand(1000,1)
+        fpr, tpr, thresholds = roc_curve(y_true, y_score)
+        fpr_start = 0.0
+        fpr_end = 1.0
+        pauroc_result = pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+        auc_result = roc_auc_score(y_true, y_score)
+        self.assertAlmostEqual(pauroc_result, auc_result, 3)
 
 if __name__ == '__main__':
     unittest.main()
