@@ -170,6 +170,38 @@ class PAUROCTest(unittest.TestCase):
         with self.assertRaises(pauroc.FPRArrayHasNan):
             pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
 
+    def test_fpr_lesser_than_zero(self):
+        fpr = numpy.array([-0.001, 0.2,0.4])
+        tpr = numpy.array([0.8,0.8,0.8])
+        fpr_start = 0.1
+        fpr_end = 0.4
+        with self.assertRaises(pauroc.FPRArrayHasValuesLessThanZero):
+            pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+
+    def test_fpr_greater_than_one(self):
+        fpr = numpy.array([0.2,0.4, 1.001])
+        tpr = numpy.array([0.8,0.8,0.8])
+        fpr_start = 0.1
+        fpr_end = 0.4
+        with self.assertRaises(pauroc.FPRArrayHasValuesGreaterThanOne):
+            pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+
+    def test_tpr_lesser_than_zero(self):
+        fpr = numpy.array([0.1, 0.2,0.4])
+        tpr = numpy.array([-0.001,0.8,0.8])
+        fpr_start = 0.1
+        fpr_end = 0.4
+        with self.assertRaises(pauroc.TPRArrayHasValuesLessThanZero):
+            pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+
+    def test_tpr_greater_than_one(self):
+        fpr = numpy.array([0.2,0.4,0.6])
+        tpr = numpy.array([0.8,0.8,1.001])
+        fpr_start = 0.1
+        fpr_end = 0.4
+        with self.assertRaises(pauroc.TPRArrayHasValuesGreterThanOne):
+            pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+
 if __name__ == '__main__':
     unittest.main()
 
