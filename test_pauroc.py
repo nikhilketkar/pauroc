@@ -152,13 +152,23 @@ class PAUROCTest(unittest.TestCase):
         fpr_end = 1.0
         pauroc_result = pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
         auc_result = roc_auc_score(y_true, y_score)
-        self.assertAlmostEqual(pauroc_result, auc_result, 4)
+        self.assertAlmostEqual(pauroc_result, auc_result, 2)
 
     def test_nan_in_tpr(self):
-        pass
+        fpr = numpy.array([0.2,0.3,0.4])
+        tpr = numpy.array([0.8,numpy.nan,0.8])
+        fpr_start = 0.1
+        fpr_end = 0.4
+        with self.assertRaises(pauroc.TPRArrayHasNan):
+            pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
 
     def test_nan_in_fpr(self):
-        pass
+        fpr = numpy.array([0.2,numpy.nan,0.4])
+        tpr = numpy.array([0.8,0.8,0.8])
+        fpr_start = 0.1
+        fpr_end = 0.4
+        with self.assertRaises(pauroc.FPRArrayHasNan):
+            pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
 
 if __name__ == '__main__':
     unittest.main()

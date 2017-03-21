@@ -17,6 +17,8 @@ class FPRRangeStartPointGreaterThanOne(PAUROCException):pass
 class FPRRangeEndPointNegative(PAUROCException):pass
 class FPRRangeEndPointGreaterThanOne(PAUROCException):pass
 class FPRRangeInvalid(PAUROCException):pass
+class FPRArrayHasNan(PAUROCException):pass
+class TPRArrayHasNan(PAUROCException):pass
 
 def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     if not numpy.issubdtype(fpr.dtype,numpy.float): raise FPRArrayNotFloat
@@ -33,6 +35,8 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     if fpr_range_end < 0: raise FPRRangeEndPointNegative
     if fpr_range_end > 1: raise FPRRangeEndPointGreaterThanOne
     if fpr_range_start > fpr_range_end: raise FPRRangeInvalid
+    if numpy.any(numpy.isnan(fpr)): raise FPRArrayHasNan
+    if numpy.any(numpy.isnan(tpr)): raise TPRArrayHasNan
 
     fpr_padded = numpy.concatenate([[0.0], fpr, [1.0]])
     tpr_padded = numpy.concatenate([[0.0], tpr, [1.0]])
