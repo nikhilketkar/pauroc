@@ -145,8 +145,8 @@ class PAUROCTest(unittest.TestCase):
         self.assertAlmostEqual(result, 0.22, 10)
 
     def test_scikit_learn_auc(self):
-        y_true = numpy.round(numpy.random.rand(1000,1))
-        y_score = numpy.random.rand(1000,1)
+        y_true = numpy.round(numpy.random.rand(100,1))
+        y_score = numpy.random.rand(100,1)
         fpr, tpr, thresholds = roc_curve(y_true, y_score)
         fpr_start = 0.0
         fpr_end = 1.0
@@ -201,6 +201,14 @@ class PAUROCTest(unittest.TestCase):
         fpr_end = 0.4
         with self.assertRaises(pauroc.TPRArrayHasValuesGreterThanOne):
             pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+
+    def test_zeros_and_ones(self):
+        fpr = numpy.array([0, 0.2,0.4,0.5,0.6,0.8,1.0])
+        tpr = numpy.array([0.0,0.0,0.0,1,1.0,1.0,1.0])
+        fpr_start = 0.0
+        fpr_end = 1.0
+        result = pauroc.pauroc(tpr,fpr,fpr_start,fpr_end)
+        self.assertAlmostEqual(result, 0.55, 10)
 
 if __name__ == '__main__':
     unittest.main()

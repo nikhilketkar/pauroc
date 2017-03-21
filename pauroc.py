@@ -33,6 +33,12 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     if len(fpr) < 2: raise FPRArrayLessThanTwo
     if len(tpr) < 2: raise TPRArrayLessThanTwo
     if len(tpr) != len(fpr): raise TPRFPRArraySizeUnequal
+    if numpy.any(numpy.isnan(fpr)): raise FPRArrayHasNan
+    if numpy.any(numpy.isnan(tpr)): raise TPRArrayHasNan
+    if numpy.any(tpr < 0.0): raise TPRArrayHasValuesLessThanZero
+    if numpy.any(fpr < 0.0): raise FPRArrayHasValuesLessThanZero
+    if numpy.any(tpr > 1.0): raise TPRArrayHasValuesGreterThanOne
+    if numpy.any(fpr > 1.0): raise FPRArrayHasValuesGreaterThanOne
     if numpy.all(numpy.diff(fpr) < 0.0): raise FPRArrayNonMonotonic
     if numpy.all(numpy.diff(tpr) < 0.0): raise TPRArrayNonMonotonic
     if fpr_range_start < 0: raise FPRRangeStartPointNegative
@@ -40,13 +46,6 @@ def pauroc(tpr, fpr, fpr_range_start, fpr_range_end):
     if fpr_range_end < 0: raise FPRRangeEndPointNegative
     if fpr_range_end > 1: raise FPRRangeEndPointGreaterThanOne
     if fpr_range_start > fpr_range_end: raise FPRRangeInvalid
-    if numpy.any(numpy.isnan(fpr)): raise FPRArrayHasNan
-    if numpy.any(numpy.isnan(tpr)): raise TPRArrayHasNan
-    if numpy.any(tpr < 0): raise TPRArrayHasValuesLessThanZero
-    if numpy.any(fpr < 0): raise FPRArrayHasValuesLessThanZero
-    if numpy.any(tpr > 1): raise TPRArrayHasValuesGreterThanOne
-    if numpy.any(fpr > 1): raise FPRArrayHasValuesGreaterThanOne
-
 
     fpr_padded = numpy.concatenate([[0.0], fpr, [1.0]])
     tpr_padded = numpy.concatenate([[0.0], tpr, [1.0]])
